@@ -11,13 +11,16 @@ on:
 env:
   GO_VERSION: 1.23.3
   PROJECT: p2p-app
-  DOCKER_RESITORY: javiee/p
+  DOCKER_RESITORY: javiee/p2p
   DOCKER_IMAGE: your-dockerhub-username/go-app
   DOCKER_TAG: latest
 
 jobs:
   go-build:
     runs-on: ubuntu-latest
+    env:
+      GO111MODULE: off 
+      CGO_ENABLED: 0 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
