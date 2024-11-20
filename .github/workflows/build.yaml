@@ -36,11 +36,24 @@ jobs:
       - name: Test with Go
         working-directory: ./p2p-app/tests
         run: |
-            go test -v -json > -report.json
+            go test -v -json > report.json
             cat report.json
       - name: Upload Go test results
         uses: actions/upload-artifact@v4
         with:
           name: test-result
           path: report.json
+
+  docker-publish:
+    runs-on: ubuntu-latest
+    env:
+      GO111MODULE: off 
+      CGO_ENABLED: 0 
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+      - name: docker build 
+        working-directory: ./p2p-app
+        run: echo "building"
+
 
