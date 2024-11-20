@@ -11,9 +11,9 @@ on:
 env:
   GO_VERSION: 1.23.3
   PROJECT: p2p-app
-  DOCKER_RESITORY: javiee/p2p
-  DOCKER_IMAGE: your-dockerhub-username/go-app
+  DOCKER_IMAGE: javiee/p2p-app
   DOCKER_TAG: latest
+  DEVELOP_BRANCH: develop
 
 jobs:
   go-build:
@@ -36,24 +36,53 @@ jobs:
       - name: Test with Go
         working-directory: ./p2p-app/tests
         run: |
-            go test -v -json > report.json
+            go test -v -json > report-${{ env.PROJECT }}.json
             cat report.json
       - name: Upload Go test results
         uses: actions/upload-artifact@v4
         with:
           name: test-result
-          path: report.json
+          path: ./p2p-app/tests/report-${{ env.PROJECT }}.json
 
-  docker-publish:
+
+  calculate-tag:
+    if: github.ref == 'refs/heads/p2p-exercise || github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    env:
-      GO111MODULE: off 
-      CGO_ENABLED: 0 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
-      - name: docker build 
-        working-directory: ./p2p-app
-        run: echo "building"
+      - name: Set version tah
+        run: | 
+            env
+            set +x
+            if [ "${{ github.ref }}" == "refs/heads/${DEVELOP_BRANCH}" ]; then
+              RANDOM_TAG=$(uuidgen | cut -c1-8)
+              echo "tag=dev-$RANDOM_TAG" >> $GITHUB_ENV
+            elif [ "${{ github.ref }}" == "refs/heads/main" ]; then
+              echo "tag=latest" >> $GITHUB_ENV
+            fi
+            echo $tag $TAG
+  
+  docker-publish:
+    if: github.ref == 'refs/heads/p2p-exercise || github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      # Step 1: Checkout the code
+      - name: Checkout code
+        uses: actions/checkout@v3
 
+      # Step 2: Log in to Docker Hub
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: javiee
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Docker build
+        working-directory: ./p2p-app
+        run: docker build -f docker/Dockerfile -t $DOCKER_IMAGE:${{ env.tag }} .
+
+      - name: Push Docker image
+        working-directory: ./p2p-app
+        run: docker push $DOCKER_IMAGE:${{ env.tag }}
 
