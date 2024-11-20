@@ -31,7 +31,7 @@ jobs:
           go-version: ${{ env.GO_VERSION }}
       - name: Build
         working-directory: ./p2p-devops-test
-        run:  go build -o main .
+        run:  ls -la && go build -o main .
 
       - name: Test with Go
         working-directory: ./p2p-devops-test
