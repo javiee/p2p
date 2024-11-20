@@ -1,0 +1,13 @@
+image:
+  tag: "dev-96d9e25"
+
+replicaCount: 1
+
+service:
+  type: ClusterIP
+  port: 3000
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 3

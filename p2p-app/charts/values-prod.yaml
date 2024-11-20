@@ -1,0 +1,10 @@
+replicaCount: 2
+
+service:
+  type: ClusterIP
+  port: 3000
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 3
