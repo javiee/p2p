@@ -56,10 +56,10 @@ jobs:
       - name: Determine Docker Tag
         id: calculate-tag
         run: |
-          if [ "${{ github.ref }}" == "refs/heads/p2p-exercise" ]; then
+          if [ "${{ github.ref }}" == "refs/heads/${DEVELOP_BRANCH}" ]; then
             TAG_PREFIX=$(git rev-parse --short HEAD)
             echo "tag=dev-$TAG_PREFIX" >> $GITHUB_OUTPUT
-          elif [ "${{ github.ref }}" == "refs/heads/main" ]; then
+          elif [ "${{ github.ref }}" == "refs/heads/p2p-exercise" ]; then
               echo "Creating a new tag"
               last_tag=$(git describe --tags --abbrev=0)
               echo $?
