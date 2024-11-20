@@ -64,13 +64,16 @@ jobs:
             echo "Unable to determine tag"
             exit 1
           fi
+          echo "::set-output name=tag::${TAG}"
       - name: Print Docker Tag
-        run: echo "${{ env.TAG }}"
+        run: echo "${{ steps.determine-tag.outputs.tag }}"
   
   docker-publish:
     if: github.ref == 'refs/heads/p2p-exercise' || github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     needs: ['go-build','calculate-tag']
+    env:
+      DOCKER_TAG: ${{ needs.calculate-tag.outputs.docker_tag }}
     steps:
       # Step 1: Checkout the code
       - name: Checkout code
@@ -85,9 +88,9 @@ jobs:
 
       - name: Docker build
         working-directory: ./p2p-app
-        run: docker build -f docker/Dockerfile -t $DOCKER_IMAGE:${{ env.TAG }} .
+        run: docker build -f docker/Dockerfile -t $DOCKER_IMAGE:${{ env.DOCKER_TAG }} .
 
       - name: Push Docker image
         working-directory: ./p2p-app
-        run: docker push $DOCKER_IMAGE:${{ env.TAG }}
+        run: docker push $DOCKER_IMAGE:${{ env.DOCKER_TAG }}
 
