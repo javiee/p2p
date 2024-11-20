@@ -61,7 +61,8 @@ jobs:
             echo "tag=dev-$TAG_PREFIX" >> $GITHUB_OUTPUT
           elif [ "${{ github.ref }}" == "refs/heads/p2p-exercise" ]; then
               echo "Creating a new tag"
-              git fetch -a
+              git fetch --tags
+              git tag
               git describe --tags $(git rev-list --tags --max-count=1)
               last_tag=$(git describe --tags `git rev-list --tags --max-count=1`)
               echo $last_tag
