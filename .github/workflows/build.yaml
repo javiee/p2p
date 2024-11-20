@@ -13,7 +13,7 @@ env:
   PROJECT: p2p-app
   DOCKER_IMAGE: javiee/p2p-app
   DOCKER_TAG: latest
-  DEVELOP_BRANCH: develop
+  DEVELOP_BRANCH: p2p-exercise
 
 jobs:
   go-build:
@@ -46,6 +46,7 @@ jobs:
 
   calculate-tag:
     if: github.ref == 'refs/heads/p2p-exercise' || github.ref == 'refs/heads/main'
+    needs: 'go-build'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -55,9 +56,12 @@ jobs:
             echo "${{ github.ref }}"
             if [ "${{ github.ref }}" == "refs/heads/${DEVELOP_BRANCH}" ]; then
               TAG_PREFIX=$(git rev-parse --short HEAD)
-              echo "tag=dev-$RANDOM_TAG" >> $GITHUB_ENV
+              echo "TAG=dev-$RANDOM_TAG" >> $GITHUB_ENV
             elif [ "${{ github.ref }}" == "refs/heads/main" ]; then
-              echo "tag=latest" >> $GITHUB_ENV
+              echo "TAG=latest" >> $GITHUB_ENV
+            else
+              echo "Unable to determine tag"
+              return 1
             fi
             echo $tag $TAG
   
