@@ -35,11 +35,11 @@ jobs:
 
       - name: Test with Go
         working-directory: ./p2p-app/tests
-        run: go test -json > TestResults-${{ env.PROJECT }}.json
+        run: go test -v -json > test-result-${{ env.PROJECT }}.json
 
       - name: Upload Go test results
         uses: actions/upload-artifact@v4
         with:
-          name: Go-results-${{ env.PROJECT }}.
-          path: TestResults-${{ env.PROJECT }}.json
+          name: test-result.
+          path: test-result-${{ env.PROJECT }}.json
 
