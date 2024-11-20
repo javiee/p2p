@@ -44,9 +44,8 @@ jobs:
           name: test-result
           path: ./p2p-app/tests/report-${{ env.PROJECT }}.json
 
-
   calculate-tag:
-    if: github.ref == 'refs/heads/p2p-exercise || github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/p2p-exercise' || github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -64,7 +63,7 @@ jobs:
             echo $tag $TAG
   
   docker-publish:
-    if: github.ref == 'refs/heads/p2p-exercise || github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/p2p-exercise' || github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       # Step 1: Checkout the code
