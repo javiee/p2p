@@ -62,7 +62,6 @@ jobs:
           elif [ "${{ github.ref }}" == "refs/heads/p2p-exercise" ]; then
               echo "Creating a new tag"
               last_tag=$(git describe --tags --abbrev=0)
-              echo $?
               if [[ $? -eq 0 ]]; then
                 echo "bumping"
                 major=$(echo ${last_tag//v} | cut -d. -f1)
@@ -76,13 +75,13 @@ jobs:
                 else
                   ((patch+=1))
                 fi 
-                echo "New tag: v$major.$minor.$patch"
-                echo "tag= v$major.$minor.$patch" >> $GITHUB_OUTPUT
+                echo "tag=v$major.$minor.$patch" >> $GITHUB_OUTPUT
+              fi
           else
             echo "Unable to determine tag"
             exit 1
           fi
-  
+
   docker-publish:
     if: github.ref == 'refs/heads/p2p-exercise' || github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
