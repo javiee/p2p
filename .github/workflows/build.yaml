@@ -57,9 +57,9 @@ jobs:
         run: |
           if [ "${{ github.ref }}" == "refs/heads/${DEVELOP_BRANCH}" ]; then
             TAG_PREFIX=$(git rev-parse --short HEAD)
-            echo "TAG=dev-$TAG_PREFIX" >> $GITHUB_ENV
+            TAG="dev-$TAG_PREFIX"
           elif [ "${{ github.ref }}" == "refs/heads/main" ]; then
-            echo "TAG=latest" >> $GITHUB_ENV
+            TAG="latest"
           else
             echo "Unable to determine tag"
             exit 1
