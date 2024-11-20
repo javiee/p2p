@@ -44,26 +44,28 @@ jobs:
           name: test-result
           path: ./p2p-app/tests/report-${{ env.PROJECT }}.json
 
+
   calculate-tag:
-    if: github.ref == 'refs/heads/p2p-exercise' || github.ref == 'refs/heads/main'
-    needs: 'go-build'
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
+      - name: Checkout repository
         uses: actions/checkout@v3
-      - name: Set version tah
-        run: | 
-            echo "${{ github.ref }}"
-            if [ "${{ github.ref }}" == "refs/heads/${DEVELOP_BRANCH}" ]; then
-              TAG_PREFIX=$(git rev-parse --short HEAD)
-              echo "TAG=dev-$RANDOM_TAG" >> $GITHUB_ENV
-            elif [ "${{ github.ref }}" == "refs/heads/main" ]; then
-              echo "TAG=latest" >> $GITHUB_ENV
-            else
-              echo "Unable to determine tag"
-              return 1
-            fi
-            echo $GITHUB_ENV
+
+      # Step 2: Calculate Docker tag
+      - name: Determine Docker Tag
+        id: calculate-tag
+        run: |
+          if [ "${{ github.ref }}" == "refs/heads/${DEVELOP_BRANCH}" ]; then
+            TAG_PREFIX=$(git rev-parse --short HEAD)
+            echo "TAG=dev-$TAG_PREFIX" >> $GITHUB_ENV
+          elif [ "${{ github.ref }}" == "refs/heads/main" ]; then
+            echo "TAG=latest" >> $GITHUB_ENV
+          else
+            echo "Unable to determine tag"
+            exit 1
+          fi
+      - name: Print Docker Tag
+        run: echo "Docker Tag: ${{ env.TAG }}"
   
   docker-publish:
     if: github.ref == 'refs/heads/p2p-exercise' || github.ref == 'refs/heads/main'
