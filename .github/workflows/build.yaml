@@ -63,7 +63,7 @@ jobs:
               echo "Unable to determine tag"
               return 1
             fi
-            echo $tag $TAG
+            echo $GITHUB_ENV
   
   docker-publish:
     if: github.ref == 'refs/heads/p2p-exercise' || github.ref == 'refs/heads/main'
@@ -83,9 +83,9 @@ jobs:
 
       - name: Docker build
         working-directory: ./p2p-app
-        run: docker build -f docker/Dockerfile -t $DOCKER_IMAGE:${{ env.tag }} .
+        run: docker build -f docker/Dockerfile -t $DOCKER_IMAGE:${{ env.TAG }} .
 
       - name: Push Docker image
         working-directory: ./p2p-app
-        run: docker push $DOCKER_IMAGE:${{ env.tag }}
+        run: docker push $DOCKER_IMAGE:${{ env.TAG }}
 
