@@ -7,13 +7,12 @@ on:
     branches:
       - p2p-exercise
 
-
 env:
   GO_VERSION: 1.23.3
   PROJECT: p2p-app
   DOCKER_IMAGE: javiee/p2p-app
   DOCKER_TAG: latest
-  DEVELOP_BRANCH: p2p-exercise
+  DEVELOP_BRANCH: develop
 
 jobs:
   go-build:
@@ -57,11 +56,28 @@ jobs:
       - name: Determine Docker Tag
         id: calculate-tag
         run: |
-          if [ "${{ github.ref }}" == "refs/heads/${DEVELOP_BRANCH}" ]; then
+          if [ "${{ github.ref }}" == "refs/heads/${p2p-exercise}" ]; then
             TAG_PREFIX=$(git rev-parse --short HEAD)
             echo "tag=dev-$TAG_PREFIX" >> $GITHUB_OUTPUT
           elif [ "${{ github.ref }}" == "refs/heads/main" ]; then
-            echo "tag=latest" >> $GITHUB_OUTPUT
+              echo "Creating a new tag"
+              last_tag=$(git describe --tags --abbrev=0)
+              echo $?
+              if [[ $? -eq 0 ]]; then
+                echo "bumping"
+                major=$(echo ${last_tag//v} | cut -d. -f1)
+                minor=$(echo $last_tag | cut -d. -f2)
+                patch=$(echo $last_tag | cut -d. -f3)
+                commit_message=$(git log -1 HEAD --pretty=format:%s)
+                if [[ $commit_message == *"BREAKING"* ]]; then
+                  ((major+=1))
+                elif [[ $commit_message == *"FEATURE"* ]]; then
+                  ((minor+=1))
+                else
+                  ((patch+=1))
+                fi 
+                echo "New tag: v$major.$minor.$patch"
+                echo "tag= v$major.$minor.$patch" >> $GITHUB_OUTPUT
           else
             echo "Unable to determine tag"
             exit 1
