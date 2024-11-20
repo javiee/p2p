@@ -65,7 +65,7 @@ jobs:
             exit 1
           fi
       - name: Print Docker Tag
-        run: echo "Docker Tag: ${{ env.TAG }}"
+        run: echo "${{ env.TAG }}"
   
   docker-publish:
     if: github.ref == 'refs/heads/p2p-exercise' || github.ref == 'refs/heads/main'
