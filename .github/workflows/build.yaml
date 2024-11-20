@@ -88,8 +88,8 @@ jobs:
           fi
       - name:  Create and push the new tag
         run: |
-          git tag ${env.tag}
-          git push origin ${env.tag}
+          git tag ${{ env.tag }}
+          git push origin ${{ env.tag }}
 
   docker-publish:
     if: github.ref == 'refs/heads/p2p-exercise' || github.ref == 'refs/heads/main'
