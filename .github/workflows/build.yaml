@@ -80,6 +80,7 @@ jobs:
                 new_tag="v$major.$minor.$patch"
                 echo "New tag to deploy $new_tag"
                 echo "tag=$new_tag" >> $GITHUB_OUTPUT
+                echo "tag=$new_tag" >> $GITHUB_ENV
               fi
           else
             echo "Unable to determine tag"
@@ -87,8 +88,8 @@ jobs:
           fi
       - name:  Create and push the new tag
         run: |
-          git tag "$new_tag"
-          git push origin "$new_tag"
+          git tag ${env.tag}
+          git push origin ${env.tag}
 
   docker-publish:
     if: github.ref == 'refs/heads/p2p-exercise' || github.ref == 'refs/heads/main'
