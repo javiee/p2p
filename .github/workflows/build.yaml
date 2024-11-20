@@ -62,10 +62,7 @@ jobs:
           elif [ "${{ github.ref }}" == "refs/heads/p2p-exercise" ]; then
               echo "Creating a new tag"
               git fetch --tags
-              git tag
-              git describe --tags $(git rev-list --tags --max-count=1)
-              last_tag=$(git describe --tags `git rev-list --tags --max-count=1`)
-              echo $last_tag
+              last_tag=$(git describe --tags --abbrev=0)
               if [[ $? -eq 0 ]]; then
                 echo "bumping"
                 major=$(echo ${last_tag//v} | cut -d. -f1)
@@ -79,6 +76,7 @@ jobs:
                 else
                   ((patch+=1))
                 fi 
+                echo "New tag to deploy v$major.$minor.$patch"
                 echo "tag=v$major.$minor.$patch" >> $GITHUB_OUTPUT
               fi
           else
