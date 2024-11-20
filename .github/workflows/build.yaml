@@ -1,7 +1,6 @@
 name: p2p app build
 
 on:
-
   workflow_dispatch:
   push:
     branches:
