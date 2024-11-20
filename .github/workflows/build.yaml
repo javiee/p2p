@@ -7,13 +7,36 @@ on:
     branches:
       - p2p-exercise
 
-jobs:
-  say-hello:
-    runs-on: ubuntu-latest
 
+env:
+  GO_VERSION: 1.23.3
+  PROJECT: p2p-app
+  DOCKER_RESITORY: javiee/p
+  DOCKER_IMAGE: your-dockerhub-username/go-app
+  DOCKER_TAG: latest
+
+jobs:
+  go-build:
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Say Hello
-        run: echo "Hello, World!"
+      - name: Set up go
+        uses: actions/setup-go@v4
+        with:
+          go-version: ${env.GO_VERSION}
+      - name: Build
+        working-directory: ./p2p-devops-test
+        run:  go build -o main .
+
+      - name: Test with Go
+        working-directory: ./p2p-devops-test
+        run: go test -json > TestResults-${{ env.PROJECT}}.json
+
+      - name: Upload Go test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: Go-results-${{ env.PROJECT} }}
+          path: TestResults-${{ env.PROJECT}}}.json
+
