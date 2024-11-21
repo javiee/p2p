@@ -56,6 +56,3 @@ else
     kubectl cluster-info --context kind-p2p-cluster
 fi
 
-helm repo add redis https://dandydeveloper.github.io/cha
-
-helm dependency build
