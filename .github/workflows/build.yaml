@@ -1,0 +1,112 @@
+name: p2p app build
+
+
+on:
+  workflow_dispatch:
+  push: 
+    branches:
+      - '**' 
+
+env:
+  GO_VERSION: 1.23.3
+  PROJECT: p2p-app
+  DOCKER_IMAGE: javiee/p2p-app
+  DEVELOP_BRANCH: develop
+
+jobs:
+  go-build:
+    runs-on: ubuntu-latest
+    env:
+      GO111MODULE: off 
+      CGO_ENABLED: 0 
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up go
+        uses: actions/setup-go@v4
+        with:
+          go-version: ${{ env.GO_VERSION }}
+      - name: Build
+        working-directory: ./p2p-app
+        run: go build -o main main.go
+
+      - name: Test with Go
+        working-directory: ./p2p-app/tests
+        run: |
+            go test -v -json > report-${{ env.PROJECT }}.json
+            cat report-${{ env.PROJECT }}.json
+      - name: Upload Go test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-result
+          path: ./p2p-app/tests/report-${{ env.PROJECT }}.json
+
+  create-tag:
+    if: github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    needs: go-build
+    outputs:
+      tag: ${{ steps.create-tag.outputs.tag }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Determine Docker Tag
+        id: create-tag
+        run: |
+          if [ "${{ github.ref }}" == "refs/heads/${{ env.DEVELOP_BRANCH }}" ]; then
+            TAG_PREFIX=$(git rev-parse --short HEAD)
+            echo "tag=dev-$TAG_PREFIX" >> $GITHUB_OUTPUT
+          elif [ "${{ github.ref }}" == "refs/heads/" ]; then
+              echo "Creating a new tag"
+              git fetch --tags
+              last_tag=$(git describe --tags $(git rev-list --tags --max-count=1))
+              if [[ $? -eq 0 ]]; then
+                echo "bumping"
+                major=$(echo ${last_tag//v} | cut -d. -f1)
+                minor=$(echo $last_tag | cut -d. -f2)
+                patch=$(echo $last_tag | cut -d. -f3)
+                commit_message=$(git log -1 HEAD --pretty=format:%s)
+                if [[ $commit_message == *"BREAKING"* ]]; then
+                  ((major+=1))
+                elif [[ $commit_message == *"FEATURE"* ]]; then
+                  ((minor+=1))
+                else
+                  ((patch+=1))
+                fi 
+                new_tag="v$major.$minor.$patch"
+                echo "New tag to deploy $new_tag"
+                echo "tag=$new_tag" >> $GITHUB_OUTPUT
+                git tag ${{ env.tag }}
+                git push origin ${{ env.tag }}
+              fi
+          else
+            echo "Unable to determine tag"
+            exit 1
+          fi
+
+  docker-publish:
+    if: github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    needs: ['create-tag']
+    env:
+      DOCKER_TAG: ${{needs.create-tag.outputs.tag}}
+    steps:
+
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: javiee
+          password: ${{ secrets.DOCKER_TOKEN }}
+
+      - name: Docker build
+        working-directory: ./p2p-app
+        run: docker build -t $DOCKER_IMAGE:${{ env.DOCKER_TAG }} .
+
+      - name: Push Docker image
+        working-directory: ./p2p-app
+        run: docker push $DOCKER_IMAGE:${{ env.DOCKER_TAG }}
