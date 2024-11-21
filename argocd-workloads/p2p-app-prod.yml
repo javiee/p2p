@@ -22,7 +22,7 @@ spec:
       source:
         repoURL: https://github.com/javiee/p2p
         path: p2p-app/charts
-        targetRevision: p2p-exercise
+        targetRevision: main
         helm:
           valueFiles:
             - values.yaml

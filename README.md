@@ -1,7 +1,7 @@
-# Project Name
+# P2P.org App
 
 ## Overview
-This project provides a comprehensive setup for deploying a Kubernetes-based environment on your local machine. It leverages tools like Helm for package management and ArgoCD for continuous delivery.
+This project provides a comprehensive setup for deploying a Kubernetes-based environment on your local machine. It leverages tools like Helm for kubernetes resource management and ArgoCD for continuous delivery.
 
 ---
 
