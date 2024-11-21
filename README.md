@@ -68,7 +68,7 @@ p2p-app-prod   5m52s
 
 ```
 
-4 - Test application are deployd and work.
+4 - Test pods  are deployed and work.
 ``` bash
  kubectl get pods
 NAME                                 READY   STATUS    RESTARTS   AGE
@@ -94,7 +94,7 @@ Hello, you've requested: /
 ## TODO and future enhacements
 1. Create repo for p2p-app and argoworkloads
 2. Deploy helm chart to an internal registry
-3. Deploy[Image Updater](https://argocd-image-updater.readthedocs.io/en/stable/) to automate the manual step between build and argocd deploy.
+3. Deploy [Image Updater](https://argocd-image-updater.readthedocs.io/en/stable/) to automate the manual step between build and argocd deploy.
 4. Track version within the project.
 5. Include test and docker scan phases in the pipeline
 6. Enhace CI/CD stages to conditionally run to merge request, merge, feature /hotfix branch etc.
